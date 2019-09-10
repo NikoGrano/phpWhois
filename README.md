@@ -1,3 +1,9 @@
+# Notice
+
+This is fork of Phpwhois and is going under some modifications.
+Any PRs and Issues are open and welcome!
+
+
 # NEWS
 
 phpWhois v5 is finally out!
