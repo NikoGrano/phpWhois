@@ -2,7 +2,6 @@
     "name": "niko9911/phpwhois",
     "description": "phpWhois - library for querying whois services and parsing results. Based on phpwhois.org",
     "keywords": ["PHP","Whois","phpWhois"],
-    "homepage": "http://phpwhois.pw",
     "type": "library",
     "license": "GPL-2.0",
     "authors": [
@@ -21,6 +20,10 @@
         {
             "name": "Dmitry Lukashin",
             "email": "dmitry@lukashin.ru"
+        },
+        {
+            "name": "Niko Granö",
+            "email": "niko@xn--gran-8qa.fi"
         }
     ],
     "minimum-stability": "dev",

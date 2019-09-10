@@ -67,11 +67,7 @@ try {
 function print_usage()
 {
     global $argv;
-    echo <<<USAGE
-
-USAGE:
-$argv[0] [domain]
+    echo "USAGE: $argv[0] [domain]";
 
 
-USAGE;
 }

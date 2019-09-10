@@ -1,7 +1,7 @@
 #!/usr/local/bin/php -n
 <?php
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
+ * @license http://www.gnu.org/licenses/gpl-2.0.html
  * @license
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,9 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * 
  * @link http://phpwhois.pw
- * @copyright Copyright (C)1999,2005 easyDNS Technologies Inc. & Mark Jeftovic
- * @copyright Maintained by David Saez
- * @copyright Copyright (c) 2014 Dmitry Lukashin
+
  */
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
