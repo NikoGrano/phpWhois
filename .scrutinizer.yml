@@ -1,2 +1,14 @@
+filter:
+  excluded_paths:
+    - tests/
+    - example/example.php
+    - src/old/
+    - src/Whois_Old.php
+    - src/whois.parser.php
+    - src/whois.servers.php
+    - src/WhoisClient.php
+    - test.php
+    - testsuite.php
+
 tools:
-    external_code_coverage: true
+  external_code_coverage: true

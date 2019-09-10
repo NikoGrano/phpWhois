@@ -1,35 +1,75 @@
 <?php
 
 use phpWhois\Whois;
+use phpWhois\Handler\HandlerBase;
 
-class WhoisTest extends \PHPUnit_Framework_TestCase
+/**
+ * Class WhoisTest
+ */
+class WhoisTest extends PHPUnit_Framework_TestCase
 {
-    public function testWhois()
+    protected $whois;
+
+    protected function setUp()
     {
-        $whois = new Whois;
-        $result = $whois->lookup('phpwhois.pw');
-        $this->assertEquals('yes', $result['regrinfo']['registered']);
+        $this->whois = new Whois('google.com');
     }
 
     /**
-     * @dataProvider domainsProvider
+     * Pass null as a handler class name
+     *
      */
-    public function testQtype($type, $domain)
+    public function testSetHandlerNull()
     {
-        $whois = new Whois;
-        $this->assertEquals($type, $whois->getQueryType($domain));
+        $this->assertInstanceOf(Whois::class, $this->whois->setHandler(null));
     }
 
-    public function domainsProvider()
+    /**
+     * Try to assign a handler while query is not set
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetHandlerEmptyQuery()
     {
-        return array(
-            array(Whois::QTYPE_DOMAIN,  'www.google.com'),
-            array(Whois::QTYPE_DOMAIN,  'президент.рф'),
-            array(Whois::QTYPE_IPV4,    '212.212.12.12'),
-            array(Whois::QTYPE_UNKNOWN, '127.0.0.1'),
-            array(Whois::QTYPE_IPV6,    '1a80:1f45::ebb:12'),
-            array(Whois::QTYPE_UNKNOWN, 'fc80:19c::1'),
-            array(Whois::QTYPE_AS,      'ABCD_EF-GH:IJK'),
-        );
+        $this->markTestIncomplete('Should handler test double be here?');
+        $whois = new Whois();
+        $whois->setHandler(HandlerBase::class);
     }
+
+    /**
+     * Try to set correct handler
+     */
+    public function testSetHandler()
+    {
+        $this->markTestIncomplete('Should handler test double be here?');
+
+        $method = new \ReflectionMethod(Whois::class, 'getHandler');
+        $method->setAccessible(true);
+
+        $this->whois->setHandler(HandlerBase::class);
+
+        $this->assertInstanceOf(HandlerBase::class, $method->invoke($this->whois, 'getHandler'));
+    }
+
+    /**
+     * Set handler of wrong type
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetHandlerWrongType()
+    {
+        $this->markTestIncomplete('Should test double be here?');
+
+        $method = new \ReflectionMethod(Whois::class, 'getHandler');
+        $method->setAccessible(true);
+
+        $this->whois->setHandler('stdClass');
+
+        $this->assertInstanceOf(HandlerBase::class, $method->invoke($this->whois, 'getHandler'));
+
+    }
+
+    /**
+     * TODO: lookup test
+     */
 }
