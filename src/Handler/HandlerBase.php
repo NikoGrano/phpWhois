@@ -1,23 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * NOTICE OF LICENSE
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This source file is released under GNU General Public License v2.
  *
- * @link http://phpwhois.pw
- * @copyright Copyright (c) 2015 Dmitry Lukashin
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
 namespace phpWhois\Handler;
@@ -42,7 +37,7 @@ class HandlerBase
         '/renew(al)?/i',
         '/paid\-till/i',
         '/validity/i',
-        '/billeduntil/i'
+        '/billeduntil/i',
     ];
 
     /**
@@ -75,7 +70,7 @@ class HandlerBase
      */
     protected $patternNServer = [
         '/nserver/i',
-        '/name server/i'
+        '/name server/i',
     ];
 
     /**
@@ -106,7 +101,7 @@ class HandlerBase
      * ***************************************************************
      * WARNING: Variables below are not supposed to be overwritten in
      * inherited classes
-     * ***************************************************************
+     * ***************************************************************.
      */
 
     /**
@@ -135,10 +130,10 @@ class HandlerBase
     private $rows;
 
     /**
-     * Handler constructor
+     * Handler constructor.
      *
-     * @param Query $query    Query for whois server
-     * @param string|null $server    Whois server address
+     * @param Query       $query  Query for whois server
+     * @param string|null $server Whois server address
      */
     public function __construct(Query $query, $server = null)
     {
@@ -151,14 +146,14 @@ class HandlerBase
         }
         $this->setProvider($provider);
 
-        if ($server === null) {
+        if (null === $server) {
             $server = $this->getServer();
         }
         $this->setServer($server);
     }
 
     /**
-     * Set query
+     * Set query.
      *
      * @param Query $query
      *
@@ -172,7 +167,7 @@ class HandlerBase
     }
 
     /**
-     * Get query
+     * Get query.
      *
      * @return Query
      */
@@ -182,7 +177,7 @@ class HandlerBase
     }
 
     /**
-     * Set provider server address
+     * Set provider server address.
      *
      * @param string $server
      *
@@ -197,7 +192,7 @@ class HandlerBase
     }
 
     /**
-     * Get provider server address
+     * Get provider server address.
      *
      * @return string|null
      */
@@ -207,7 +202,7 @@ class HandlerBase
     }
 
     /**
-     * Set provider
+     * Set provider.
      *
      * @param ProviderAbstract $provider
      *
@@ -221,7 +216,7 @@ class HandlerBase
     }
 
     /**
-     * Get provider
+     * Get provider.
      *
      * @return ProviderAbstract
      */
@@ -231,7 +226,7 @@ class HandlerBase
     }
 
     /**
-     * Set raw response from the whois server
+     * Set raw response from the whois server.
      *
      * @param string|null $raw
      *
@@ -245,7 +240,7 @@ class HandlerBase
     }
 
     /**
-     * Get raw response from the whois server
+     * Get raw response from the whois server.
      *
      * @return string
      */
@@ -255,7 +250,7 @@ class HandlerBase
     }
 
     /**
-     * Set response split into rows by newline
+     * Set response split into rows by newline.
      *
      * @param string[] $rows
      *
@@ -269,7 +264,7 @@ class HandlerBase
     }
 
     /**
-     * Get response split by newline
+     * Get response split by newline.
      *
      * @return array
      */
@@ -279,7 +274,7 @@ class HandlerBase
     }
 
     /**
-     * Set array with parsed data
+     * Set array with parsed data.
      *
      * @param array $parsed
      *
@@ -293,7 +288,7 @@ class HandlerBase
     }
 
     /**
-     * Get array with parsed data
+     * Get array with parsed data.
      *
      * @return array
      */
@@ -303,7 +298,7 @@ class HandlerBase
     }
 
     /**
-     * Check if handler has all the necessary data assigned
+     * Check if handler has all the necessary data assigned.
      *
      * @return bool
      */
@@ -313,7 +308,7 @@ class HandlerBase
     }
 
     /**
-     * Split raw data response into array by newline
+     * Split raw data response into array by newline.
      *
      * @param string|null $raw Raw response from whois server
      *
@@ -326,44 +321,44 @@ class HandlerBase
         }
 
         // Line ending could be \r\n, \r, \n
-        return preg_split('/(\r\n|[\r\n])/', $raw);
+        return \preg_split('/(\r\n|[\r\n])/', $raw);
     }
 
     /**
-     * Try to split row into key => value array
+     * Try to split row into key => value array.
      *
-     * @param string $row  Line to parse
-     * @param string[] $splitBy Regexp for splitting the line. Method only looks for the first occurence of regexp
-     * @param string[] $ignorePattern  Don't parse rows which match the given expression, just return false
+     * @param string   $row           Line to parse
+     * @param string[] $splitBy       Regexp for splitting the line. Method only looks for the first occurence of regexp
+     * @param string[] $ignorePattern Don't parse rows which match the given expression, just return false
+     *
      * @return array|false Return key => value array if regex found, or array with just 1 element otherwise
      */
     public function splitRow($row, array $splitBy = [], array $ignorePattern = [])
     {
-
-        /**
+        /*
          * TODO: Trim row's custom symbols (See .JP)
          */
 
         // If ignorePrefix is not empty and row matches it - return false
-        if (!count($ignorePattern)) {
+        if (!\count($ignorePattern)) {
             $ignorePattern = $this->patternComment;
         }
         foreach ($ignorePattern as $pattern) {
-            if (preg_match($pattern, $row)) {
+            if (\preg_match($pattern, $row)) {
                 return false;
             }
         }
 
-        $row = trim($row);
+        $row = \trim($row);
 
-        if (!count($splitBy)) {
+        if (!\count($splitBy)) {
             $splitBy = $this->patternRowSeparator;
         }
         $parts = [];
         foreach ($splitBy as $separator) {
-            $parts = preg_split($separator, $row, 2);
-            if (count($parts) === 2) {
-                $parts[1] = trim($parts[1]);
+            $parts = \preg_split($separator, $row, 2);
+            if (2 === \count($parts)) {
+                $parts[1] = \trim($parts[1]);
                 // If string was split by two parts - return immediately
                 // Otherwise try another patterns
                 return $parts;
@@ -374,7 +369,7 @@ class HandlerBase
     }
 
     /**
-     * Extract unix timestamp from the defined string
+     * Extract unix timestamp from the defined string.
      *
      * @param string $date Date
      *
@@ -383,9 +378,9 @@ class HandlerBase
     protected function parseDate($date)
     {
         $result = false;
-        if ($this->dateFormat === null) {
-            $result = strtotime($date);
-        } elseif (count($this->dateFormat)) {
+        if (null === $this->dateFormat) {
+            $result = \strtotime($date);
+        } elseif (\count($this->dateFormat)) {
             foreach ($this->dateFormat as $format) {
                 if ($dateTime = \DateTime::createFromFormat($format, $date)) {
                     $result = $dateTime->format('U');
@@ -393,38 +388,40 @@ class HandlerBase
                 }
             }
         }
+
         return $result;
     }
 
     /**
-     * Try to extract the date from the given key and value
+     * Try to extract the date from the given key and value.
      *
-     * @param string $row           Line from raw whois response
-     * @param string[] $patterns       Array with patterns for matching the $key
-     * @param string[] $antiPatterns   Array with patterns which $key must not match
+     * @param string   $row          Line from raw whois response
+     * @param string[] $patterns     Array with patterns for matching the $key
+     * @param string[] $antiPatterns Array with patterns which $key must not match
      *
-     * @return false|int    Unix timestamp
+     * @return false|int Unix timestamp
      */
     protected function extractDate($row, array $patterns, array $antiPatterns = [])
     {
         $result = false;
 
         foreach ($antiPatterns as $ap) {
-            if (preg_match($ap, $row)) {
+            if (\preg_match($ap, $row)) {
                 $result = false;
+
                 return $result;
             }
         }
 
         $parts = $this->splitRow($row);
-        if (count($parts) === 2) {
+        if (2 === \count($parts)) {
             [$key, $value] = $parts;
         } else {
             return false;
         }
 
         foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $key) && $time = $this->parseDate($value)) {
+            if (\preg_match($pattern, $key) && $time = $this->parseDate($value)) {
                 $result = $time;
                 break;
             }
@@ -434,7 +431,7 @@ class HandlerBase
     }
 
     /**
-     * Try to extract `registered`, `expires` and `updated` dates from the rows
+     * Try to extract `registered`, `expires` and `updated` dates from the rows.
      *
      * @param string[] $rows Rows in key => value format
      *
@@ -458,14 +455,16 @@ class HandlerBase
                 $dates['updated'] = $this->extractDate($row, $this->patternUpdated, ['/>>>/i']) ?: $dates['updated'];
             }
         }
+
         return $dates;
     }
 
     /**
      * Try to parse response into key => value array
-     * WARNING: This is very dirty solution, since multiple keys will override each other
+     * WARNING: This is very dirty solution, since multiple keys will override each other.
      *
      * @param string[] $rows
+     *
      * @return array
      */
     protected function extractKeyValue(array $rows): array
@@ -473,15 +472,16 @@ class HandlerBase
         $keyValue = [];
         foreach ($rows as $row) {
             $parts = $this->splitRow($row);
-            if ($parts !== false && count($parts) === 2) {
+            if (false !== $parts && 2 === \count($parts)) {
                 $keyValue[$parts[0]] = $parts[1];
             }
         }
+
         return $keyValue;
     }
 
     /**
-     * Perform parsing and set necessary properties
+     * Perform parsing and set necessary properties.
      *
      * @return array
      */
@@ -500,7 +500,7 @@ class HandlerBase
     }
 
     /**
-     * Perform a lookup of defined query
+     * Perform a lookup of defined query.
      *
      * @return Response
      *

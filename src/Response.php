@@ -1,32 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * NOTICE OF LICENSE
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This source file is released under GNU General Public License v2.
  *
- * @link http://phpwhois.pw
- * @copyright Copyright (c) 2015 Dmitry Lukashin
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
 namespace phpWhois;
 
-use phpWhois\Query;
-use phpWhois\Provider\ProviderAbstract;
-
 /**
- * Response from WhoisServer
+ * Response from WhoisServer.
  */
 class Response
 {
@@ -46,7 +38,7 @@ class Response
     private $parsed;
 
     /**
-     * Response constructor
+     * Response constructor.
      *
      * @param Query|null $query
      */
@@ -56,9 +48,9 @@ class Response
     }
 
     /**
-     * Set not parsed raw response from the whois server
+     * Set not parsed raw response from the whois server.
      *
-     * @param string|null  $raw
+     * @param string|null $raw
      *
      * @return $this
      */
@@ -70,7 +62,7 @@ class Response
     }
 
     /**
-     * Get not parsed raw response from whois server
+     * Get not parsed raw response from whois server.
      *
      * @return string|null
      */
@@ -80,7 +72,7 @@ class Response
     }
 
     /**
-     * Set query
+     * Set query.
      *
      * @param Query|null $query
      *
@@ -94,7 +86,7 @@ class Response
     }
 
     /**
-     * Get current query object
+     * Get current query object.
      *
      * @return Query|null
      */
@@ -104,7 +96,7 @@ class Response
     }
 
     /**
-     * Set parsed
+     * Set parsed.
      *
      * @param array $parsed
      *
@@ -118,7 +110,7 @@ class Response
     }
 
     /**
-     * Get parsed array
+     * Get parsed array.
      *
      * @return array
      */
@@ -129,7 +121,7 @@ class Response
 
     /**
      * Look for the key in the rows array
-     * TODO: Search across the blocks
+     * TODO: Search across the blocks.
      *
      * @param string $key
      *
@@ -139,7 +131,7 @@ class Response
     {
         $parsed = $this->getParsed();
 
-        if (array_key_exists('keyValue', $parsed) && array_key_exists($key, $parsed['keyValue'])) {
+        if (\array_key_exists('keyValue', $parsed) && \array_key_exists($key, $parsed['keyValue'])) {
             return $parsed['keyValue'][$key];
         }
 
@@ -150,7 +142,7 @@ class Response
     {
         $result = [
             'query' => [
-                'address' => $this->query->getAddress(),
+                'address'     => $this->query->getAddress(),
                 'addressOrig' => $this->query->getAddressOrig(),
             ],
             // TODO: Add provider object to the response
@@ -162,11 +154,12 @@ class Response
             ],*/
             'responseRaw' => $this->getRaw(),
         ];
+
         return $result;
     }
 
     public function getJson()
     {
-        return json_encode($this->getData());
+        return \json_encode($this->getData());
     }
 }

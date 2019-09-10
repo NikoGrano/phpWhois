@@ -1,51 +1,45 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * NOTICE OF LICENSE
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This source file is released under GNU General Public License v2.
  *
- * @link http://phpwhois.pw
- * @copyright Copyright (c) 2015 Dmitry Lukashin
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
 namespace phpWhois;
 
-use phpWhois\Query;
 use phpWhois\Handler\HandlerBase;
 
 /**
- * phpWhois main class
+ * phpWhois main class.
  *
  * This class supposed to be instantiated for using the phpWhois library
  */
 class Whois
 {
     /**
-     * @var HandlerBase   Handler for obtaining address whois information
+     * @var HandlerBase Handler for obtaining address whois information
      */
     protected $handler;
 
     /**
-     * @var Query   Query object created from the given domain name
+     * @var Query Query object created from the given domain name
      */
     protected $query;
 
     /**
      * Whois constructor.
      *
-     * @param null|string $address  Address to query
+     * @param string|null $address Address to query
      */
     public function __construct($address = null)
     {
@@ -54,9 +48,9 @@ class Whois
     }
 
     /**
-     * Set query instance
+     * Set query instance.
      *
-     * @param Query $query  Set query instance
+     * @param Query $query Set query instance
      *
      * @return $this
      */
@@ -68,7 +62,7 @@ class Whois
     }
 
     /**
-     * Get instance
+     * Get instance.
      *
      * @return Query
      */
@@ -78,13 +72,13 @@ class Whois
     }
 
     /**
-     * Set address
+     * Set address.
      *
-     * @param string  $address  Address
+     * @param string $address Address
      *
      * @return $this
      *
-     * @throws \InvalidArgumentException    When address is not recognized
+     * @throws \InvalidArgumentException When address is not recognized
      */
     public function setAddress($address)
     {
@@ -94,20 +88,21 @@ class Whois
     }
 
     /**
-     * Instantiate handler by the given class name
+     * Instantiate handler by the given class name.
      *
      * @param string|null $handler Name of handler class. Must inherit HandlerBase
      *
      * @return $this
+     *
      * @throws \InvalidArgumentException
      */
     public function setHandler($handler)
     {
-        if (is_null($handler)) {
+        if (null === $handler) {
             return $this;
         }
 
-        if (!class_exists($handler)) {
+        if (!\class_exists($handler)) {
             throw new \InvalidArgumentException('Specified handler class wasn\'t found');
         }
 
@@ -123,9 +118,9 @@ class Whois
     }
 
     /**
-     * Get handler instance
+     * Get handler instance.
      *
-     * @return null|HandlerBase
+     * @return HandlerBase|null
      */
     protected function getHandler()
     {
@@ -133,20 +128,21 @@ class Whois
     }
 
     /**
-     * Perform a lookup of address
+     * Perform a lookup of address.
      *
      * 1. Query IANA whois server first to obtain the default whois server.
      * 2. If IANA returned the default server address - query it
      * 3. If special handler is set - try to query it as well
      *
-     * @param null|string $address
+     * @param string|null $address
      *
      * @return Response Response from the whois server
-     * @throws \InvalidArgumentException    if address is empty
+     *
+     * @throws \InvalidArgumentException if address is empty
      */
     public function lookup($address = null)
     {
-        if (!is_null($address)) {
+        if (null !== $address) {
             $this->setAddress($address);
         }
 

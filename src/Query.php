@@ -1,23 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * NOTICE OF LICENSE
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This source file is released under GNU General Public License v2.
  *
- * @link http://phpwhois.pw
- * @copyright Copyright (c) 2015 Dmitry Lukashin
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
 namespace phpWhois;
@@ -26,12 +21,11 @@ use TrueBV\Punycode;
 
 final class Query
 {
-
     const QTYPE_UNKNOWN = -1;
-    const QTYPE_DOMAIN  = 1;
-    const QTYPE_IPV4    = 2;
-    const QTYPE_IPV6    = 3;
-    const QTYPE_AS      = 4;
+    const QTYPE_DOMAIN = 1;
+    const QTYPE_IPV4 = 2;
+    const QTYPE_IPV6 = 3;
+    const QTYPE_AS = 4;
 
     /**
      * @var int Query type (see constants)
@@ -39,29 +33,29 @@ final class Query
     private $type = self::QTYPE_UNKNOWN;
 
     /**
-     * @var string  Original address received
+     * @var string Original address received
      */
     private $addressOrig;
 
     /**
-     * @var string  Address optimized for querying the whois server
+     * @var string Address optimized for querying the whois server
      */
     private $address;
 
     /**
-     * @var string[]    Additional params to apply to address when querying whois server
+     * @var string[] Additional params to apply to address when querying whois server
      */
     private $params = [];
 
     /**
      * Query constructor.
      *
-     * @param   null|string  $address
+     * @param string|null $address
      * @param   string[]    Array of params for whois server
      */
     public function __construct($address = null, array $params = [])
     {
-        if (!is_null($address)) {
+        if (null !== $address) {
             $this->setAddress($address);
         }
 
@@ -71,25 +65,24 @@ final class Query
     }
 
     /**
-     * Set address, make necessary checks and transformations
+     * Set address, make necessary checks and transformations.
      *
      * @api
      *
-     * @param   string  $address
+     * @param string $address
      *
-     * @return  $this
+     * @return $this
      *
-     * @throws  \InvalidArgumentException    if address is not recognized
+     * @throws \InvalidArgumentException if address is not recognized
      */
     public function setAddress($address)
     {
         $type = $this->guessType($address);
 
-        if ($type == self::QTYPE_UNKNOWN) {
+        if (self::QTYPE_UNKNOWN === $type) {
             throw new \InvalidArgumentException('Address is not recognized, can\'t find whois server');
-        } else {
-            $this->setType($type);
         }
+        $this->setType($type);
 
         $this->setAddressOrig($address);
 
@@ -99,7 +92,7 @@ final class Query
     }
 
     /**
-     * @return string   Address, optimized for querying whois server
+     * @return string Address, optimized for querying whois server
      */
     public function getAddress()
     {
@@ -107,9 +100,9 @@ final class Query
     }
 
     /**
-     * Set original unoptimized address
+     * Set original unoptimized address.
      *
-     * @param   string  $address
+     * @param string $address
      *
      * @return $this
      */
@@ -121,9 +114,9 @@ final class Query
     }
 
     /**
-     * Get original unoptimized address
+     * Get original unoptimized address.
      *
-     * @return string   Original unoptimized address
+     * @return string Original unoptimized address
      */
     public function getAddressOrig()
     {
@@ -131,19 +124,19 @@ final class Query
     }
 
     /**
-     * Check if class instance has valid address set
+     * Check if class instance has valid address set.
      *
      * @return bool
      */
     public function hasData()
     {
-        return !is_null($this->getAddress());
+        return null !== $this->getAddress();
     }
 
     /**
-     * Set query type (See constants)
+     * Set query type (See constants).
      *
-     * @param int    $type
+     * @param int $type
      *
      * @return $this
      */
@@ -155,7 +148,7 @@ final class Query
     }
 
     /**
-     * Get params array
+     * Get params array.
      *
      * @return string[]
      */
@@ -165,15 +158,15 @@ final class Query
     }
 
     /**
-     * Add param to query
+     * Add param to query.
      *
-     * @param string    $param
+     * @param string $param
      *
      * @return $this
      */
     public function addParam($param)
     {
-        $this->params[] = strval($param);
+        $this->params[] = (string) $param;
 
         return $this;
     }
@@ -191,31 +184,31 @@ final class Query
      *
      * @api
      *
-     * @param   string  $address
+     * @param string $address
      *
-     * @return  string  optimized address
+     * @return string optimized address
      */
     public function optimizeAddress($address)
     {
         $type = $this->guessType($address);
-        if ($type == self::QTYPE_DOMAIN) {
-
+        if (self::QTYPE_DOMAIN === $type) {
             $address = (new Punycode())->encode($address);
 
-            $address_nowww = preg_replace('/^www./i', '', $address);
+            $address_nowww = \preg_replace('/^www./i', '', $address);
             if ((new QueryUtils())->validDomain($address_nowww)) {
                 $address = $address_nowww;
             }
         }
+
         return $address;
     }
 
     /**
-     * Guess address type
+     * Guess address type.
      *
-     * @param   string  $address
+     * @param string $address
      *
-     * @return  int Query type
+     * @return int Query type
      */
     public function guessType($address)
     {
@@ -223,15 +216,18 @@ final class Query
 
         if ($q->validIp($address, 'ipv4', false)) {
             return ($q->validIp($address, 'ipv4')) ? self::QTYPE_IPV4 : self::QTYPE_UNKNOWN;
-        } elseif ($q->validIp($address, 'ipv6', false)) {
-            return ($q->validIp($address, 'ipv6')) ? self::QTYPE_IPV6 : self::QTYPE_UNKNOWN;
-        } elseif ($q->validDomain($address)) {
-            return self::QTYPE_DOMAIN;
-        // TODO: replace with AS validator
-        } elseif ($address && is_string($address) && strpos($address, '.') === false) {
-            return self::QTYPE_AS;
-        } else {
-            return self::QTYPE_UNKNOWN;
         }
+        if ($q->validIp($address, 'ipv6', false)) {
+            return ($q->validIp($address, 'ipv6')) ? self::QTYPE_IPV6 : self::QTYPE_UNKNOWN;
+        }
+        if ($q->validDomain($address)) {
+            return self::QTYPE_DOMAIN;
+            // TODO: replace with AS validator
+        }
+        if ($address && \is_string($address) && false === \mb_strpos($address, '.')) {
+            return self::QTYPE_AS;
+        }
+
+        return self::QTYPE_UNKNOWN;
     }
 }

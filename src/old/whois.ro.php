@@ -1,31 +1,25 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- * @link http://phpwhois.pw
- * @copyright Copyright (C)1999,2005 easyDNS Technologies Inc. & Mark Jeftovic
- * @copyright Maintained by David Saez
- * @copyright Copyright (c) 2014 Dmitry Lukashin
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is released under GNU General Public License v2.
+ *
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
-if (!defined('__RO_HANDLER__'))
-    define('__RO_HANDLER__', 1);
+if (!\defined('__RO_HANDLER__')) {
+    \define('__RO_HANDLER__', 1);
+}
 
-require_once('whois.parser.php');
+require_once 'whois.parser.php';
 
 /**
  * @TODO BUG
@@ -33,32 +27,33 @@ require_once('whois.parser.php');
  * - multiple person for one role, ex: news.ro
  * - seems the only role listed is registrant
  */
-class ro_handler {
-
-    function parse($data_str, $query) {
-        $translate = array(
-            'fax-no' => 'fax',
-            'e-mail' => 'email',
-            'nic-hdl' => 'handle',
-            'person' => 'name',
-            'address' => 'address.',
-            'domain-name' => '',
-            'updated' => 'changed',
+class ro_handler
+{
+    public function parse($data_str, $query)
+    {
+        $translate = [
+            'fax-no'            => 'fax',
+            'e-mail'            => 'email',
+            'nic-hdl'           => 'handle',
+            'person'            => 'name',
+            'address'           => 'address.',
+            'domain-name'       => '',
+            'updated'           => 'changed',
             'registration-date' => 'created',
-            'domain-status' => 'status',
-            'nameserver' => 'nserver'
-        );
+            'domain-status'     => 'status',
+            'nameserver'        => 'nserver',
+        ];
 
-        $contacts = array(
-            'admin-contact' => 'admin',
+        $contacts = [
+            'admin-contact'     => 'admin',
             'technical-contact' => 'tech',
-            'zone-contact' => 'zone',
-            'billing-contact' => 'billing'
-        );
+            'zone-contact'      => 'zone',
+            'billing-contact'   => 'billing',
+        ];
 
-        $extra = array(
-            'postal code:' => 'address.pcode'
-        );
+        $extra = [
+            'postal code:' => 'address.pcode',
+        ];
 
         $reg = generic_parser_a($data_str['rawdata'], $translate, $contacts, 'domain', 'Ymd');
 
@@ -70,22 +65,22 @@ class ro_handler {
                 if (isset($item['address'])) {
                     $data = $item['address'];
                     unset($reg[$key]['address']);
-                    $reg[$key] = array_merge($reg[$key], get_contact($data, $extra));
+                    $reg[$key] = \array_merge($reg[$key], get_contact($data, $extra));
                 }
             }
 
             $reg['registered'] = 'yes';
-        } else
+        } else {
             $reg['registered'] = 'no';
+        }
 
-        $r = array();
+        $r = [];
         $r['regrinfo'] = $reg;
-        $r['regyinfo'] = array(
-            'referrer' => 'http://www.nic.ro',
-            'registrar' => 'nic.ro'
-        );
+        $r['regyinfo'] = [
+            'referrer'  => 'http://www.nic.ro',
+            'registrar' => 'nic.ro',
+        ];
 
         return $r;
     }
-
 }

@@ -4,3 +4,4 @@ composer.lock
 nbproject
 .idea
 test.php
+.php_cs.cache

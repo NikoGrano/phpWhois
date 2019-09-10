@@ -1,31 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is released under GNU General Public License v2.
+ *
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxxMaintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
+ */
+
 use phpWhois\QueryUtils;
 
 class QueryUtilsTest extends \PHPUnit_Framework_TestCase
 {
     protected $q;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->q = new QueryUtils();
     }
 
     /**
-     * Test if given ipv4 address is valid
+     * Test if given ipv4 address is valid.
      *
      * @param string $ip
+     *
      * @return string
      * @dataProvider validIpv4Provider
      */
     public function testValidIpIpv4($ip)
     {
         $this->assertTrue($this->q->validIp($ip, 'ipv4'));
+
         return $ip;
     }
 
     /**
-     * Provides only ipv4 valid addresses
+     * Provides only ipv4 valid addresses.
      *
      * @return array
      */
@@ -37,20 +54,22 @@ class QueryUtilsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test if given ipv6 address is valid
+     * Test if given ipv6 address is valid.
      *
      * @param string $ip
+     *
      * @return string
      * @dataProvider validIpv6Provider
      */
     public function testValidIpIpv6($ip)
     {
         $this->assertTrue($this->q->validIp($ip, 'ipv6'));
+
         return $ip;
     }
 
     /**
-     * Provides only ipv6 valid addresses
+     * Provides only ipv6 valid addresses.
      *
      * @return array
      */
@@ -62,30 +81,30 @@ class QueryUtilsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test if given ipv4 or ipv6 is valid
+     * Test if given ipv4 or ipv6 is valid.
      *
      * @param string $ip
      * @dataProvider validIpProvider
      */
-    public function testValidIpAny($ip)
+    public function testValidIpAny($ip): void
     {
         $this->assertTrue($this->q->validIp($ip));
     }
 
     /**
-     * Provides both ipv4 and ipv6 valid addresses
+     * Provides both ipv4 and ipv6 valid addresses.
      *
      * @return array
      */
     public function validIpProvider()
     {
-        return array_merge($this->validIpv4Provider(), $this->validIpv6Provider());;
+        return \array_merge($this->validIpv4Provider(), $this->validIpv6Provider());
     }
 
     /**
      * @dataProvider invalidIpsProvider
      */
-    public function testInvalidIp($ip)
+    public function testInvalidIp($ip): void
     {
         $this->assertFalse($this->q->validIp($ip));
     }
@@ -107,7 +126,7 @@ class QueryUtilsTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider validDomainsProvider
      */
-    public function testValidDomain($domain)
+    public function testValidDomain($domain): void
     {
         $this->assertTrue($this->q->validDomain($domain));
     }
@@ -131,7 +150,7 @@ class QueryUtilsTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider invalidDomainsProvider
      */
-    public function testInvalidDomain($domain)
+    public function testInvalidDomain($domain): void
     {
         $this->assertFalse($this->q->validDomain($domain));
     }
@@ -153,7 +172,7 @@ class QueryUtilsTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider validASProvider
      */
-    public function testValidAs($as)
+    public function testValidAs($as): void
     {
         $this->assertTrue($this->q->validAS($as));
     }
@@ -162,19 +181,19 @@ class QueryUtilsTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ['AS-13245'],
-            ['aS-12345']
+            ['aS-12345'],
         ];
     }
 
     /**
      * @dataProvider invalidASProvider
      */
-    public function testInvalidAs($as)
+    public function testInvalidAs($as): void
     {
         $this->assertFalse($this->q->validAS($as));
     }
 
-    public function invalidASProvider()
+    public function invalidASProvider(): array
     {
         return [
             ['ЯЯ-12345'],

@@ -1,23 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * NOTICE OF LICENSE
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This source file is released under GNU General Public License v2.
  *
- * @link http://phpwhois.pw
- * @copyright Copyright (c) 2015 Dmitry Lukashin
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
 namespace phpWhois\Provider;
@@ -26,12 +21,12 @@ use phpWhois\Query;
 use phpWhois\Response;
 
 /**
- * Abstract class Provider - defines the algorithms for communicating with various whois servers
+ * Abstract class Provider - defines the algorithms for communicating with various whois servers.
  */
-abstract class ProviderAbstract {
-
+abstract class ProviderAbstract
+{
     /**
-     * @var string  Whois server to query
+     * @var string Whois server to query
      */
     protected $server;
 
@@ -61,12 +56,12 @@ abstract class ProviderAbstract {
     protected $connectionErrNo;
 
     /**
-     * @var string  Connection error string
+     * @var string Connection error string
      */
     protected $connectionErrStr;
 
     /**
-     * @var resource    Connection pointer
+     * @var resource Connection pointer
      */
     protected $connectionPointer;
 
@@ -76,21 +71,21 @@ abstract class ProviderAbstract {
     protected $query;
 
     /**
-     * @var string  This is a raw query which will be sent to the Whois server (e.g. add "\r\n" to domain)
+     * @var string This is a raw query which will be sent to the Whois server (e.g. add "\r\n" to domain)
      */
     protected $rawQuery;
 
     /**
-     * Connect to the defined server
+     * Connect to the defined server.
      *
      * @return $this
      *
-     * @throws \InvalidArgumentException    if server is not specified
+     * @throws \InvalidArgumentException if server is not specified
      */
     abstract protected function connect();
 
     /**
-     * Perform a request
+     * Perform a request.
      *
      * Perform a request to the defined whois server through the established connection
      * and return raw response
@@ -100,8 +95,8 @@ abstract class ProviderAbstract {
     abstract protected function performRequest();
 
     /**
-     * @param Query     $query
-     * @param string|null    $server
+     * @param Query       $query
+     * @param string|null $server
      */
     public function __construct(Query $query, $server = null)
     {
@@ -110,22 +105,22 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Set server and parse it if it is in a host:port format
+     * Set server and parse it if it is in a host:port format.
      *
-     * @param string    $server
+     * @param string $server
      *
      * @return $this
      */
     public function setServer($server)
     {
         /**
-         * TODO: Check if server is not empty
+         * TODO: Check if server is not empty.
          */
-        $parts = explode(':', $server);
+        $parts = \explode(':', $server);
         $this->server = $parts[0];
 
-        if (count($parts) == 2) {
-            $this->setPort(intval($parts[1]));
+        if (2 === \count($parts)) {
+            $this->setPort((int) ($parts[1]));
         }
 
         return $this;
@@ -140,16 +135,17 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Set whois server port number
+     * Set whois server port number.
      *
      * @param int $port
+     *
      * @return $this
      *
      * @throws \InvalidArgumentException
      */
     public function setPort($port)
     {
-        if (!is_int($port)) {
+        if (!\is_int($port)) {
             throw new \InvalidArgumentException('Port number must be an integer');
         }
         $this->port = $port;
@@ -158,7 +154,7 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Get whois server port number
+     * Get whois server port number.
      *
      * @return int|null
      */
@@ -168,17 +164,18 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Set connection timeout
+     * Set connection timeout.
      *
      * @param int $timeout
+     *
      * @return $this
      *
      * @throws \InvalidArgumentException
      */
     public function setTimeout($timeout = 10)
     {
-        if (!is_int($timeout)) {
-            throw new \InvalidArgumentException("Timeout must be integer number of seconds");
+        if (!\is_int($timeout)) {
+            throw new \InvalidArgumentException('Timeout must be integer number of seconds');
         }
         $this->timeout = $timeout;
 
@@ -186,7 +183,7 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Get connection timeout
+     * Get connection timeout.
      *
      * @return int
      */
@@ -198,15 +195,16 @@ abstract class ProviderAbstract {
     /**
      * Set number of connection retries.
      *
-     * @param int $retry    Number of retries. 0 - connect once (no retries)
+     * @param int $retry Number of retries. 0 - connect once (no retries)
+     *
      * @return $this
      *
      * @throws \InvalidArgumentException
      */
     public function setRetry($retry = 0)
     {
-        if (!is_int($retry)) {
-            throw new \InvalidArgumentException("Number of retries must be integer value");
+        if (!\is_int($retry)) {
+            throw new \InvalidArgumentException('Number of retries must be integer value');
         }
         $this->retry = $retry;
 
@@ -214,9 +212,9 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Get number of retries
+     * Get number of retries.
      *
-     * @return int  Number of retries. 0 - connect once (no retries)
+     * @return int Number of retries. 0 - connect once (no retries)
      */
     public function getRetry()
     {
@@ -224,17 +222,18 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Set number of seconds to sleep before next retry
+     * Set number of seconds to sleep before next retry.
      *
      * @param int $sleep
+     *
      * @return $this
      *
      * @throws \InvalidArgumentException
      */
     public function setSleep($sleep = 0)
     {
-        if (!is_int($sleep)) {
-            throw new \InvalidArgumentException("Number of seconds to sleep must be integer");
+        if (!\is_int($sleep)) {
+            throw new \InvalidArgumentException('Number of seconds to sleep must be integer');
         }
 
         $this->sleep = $sleep;
@@ -243,7 +242,7 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Get number of seconds to sleep before next retry
+     * Get number of seconds to sleep before next retry.
      *
      * @return int
      */
@@ -253,9 +252,9 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Set connection error number
+     * Set connection error number.
      *
-     * @param int   $errno
+     * @param int $errno
      *
      * @return $this
      */
@@ -267,7 +266,7 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Get connection error number
+     * Get connection error number.
      *
      * @return int|null
      */
@@ -277,9 +276,9 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Set connection error message as a string
+     * Set connection error message as a string.
      *
-     * @param string    $errstr
+     * @param string $errstr
      *
      * @return $this
      */
@@ -291,7 +290,7 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Get connection error message as a string
+     * Get connection error message as a string.
      *
      * @return string|null
      */
@@ -301,12 +300,13 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Set connection pointer
+     * Set connection pointer.
      *
      * @param resource $pointer
+     *
      * @return $this
      *
-     * @throws \InvalidArgumentException    if pointer is not valid
+     * @throws \InvalidArgumentException if pointer is not valid
      */
     protected function setConnectionPointer($pointer)
     {
@@ -320,7 +320,7 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Get connection pointer
+     * Get connection pointer.
      *
      * @return resource|null
      */
@@ -330,7 +330,7 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Check if connection is established with the whois server
+     * Check if connection is established with the whois server.
      *
      * @return bool
      */
@@ -338,13 +338,13 @@ abstract class ProviderAbstract {
     {
         if ($this->getConnectionPointer()) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
-     * Set query
+     * Set query.
      *
      * @param Query $query
      *
@@ -369,7 +369,7 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Set raw query for querying whois server
+     * Set raw query for querying whois server.
      *
      * @param string $rawQuery
      *
@@ -391,18 +391,19 @@ abstract class ProviderAbstract {
     }
 
     /**
-     * Check if instance has set query, server and server port
+     * Check if instance has set query, server and server port.
      *
      * @return bool
      */
-    public function hasData() {
+    public function hasData()
+    {
         return $this->getQuery()->hasData()
             && !empty($this->getServer())
             && !empty($this->getPort());
     }
 
     /**
-     * Perform a lookup and return Response object
+     * Perform a lookup and return Response object.
      *
      * @return string
      */

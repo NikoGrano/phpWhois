@@ -1,39 +1,30 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * NOTICE OF LICENSE
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This source file is released under GNU General Public License v2.
  *
- * @link http://phpwhois.pw
- * @copyright Copyright (C)1999,2005 easyDNS Technologies Inc. & Mark Jeftovic
- * @copyright Maintained by David Saez
- * @copyright Copyright (c) 2014 Dmitry Lukashin
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
 namespace phpWhois;
 
-use phpWhois\QueryUtils;
-
 /**
- * phpWhois basic class
+ * phpWhois basic class.
  *
  * This is the basic client class
  */
 class WhoisClient
 {
-    /** @var boolean Is recursion allowed? */
+    /** @var bool Is recursion allowed? */
     public $gtldRecurse = false;
 
     /** @var int Default WHOIS port */
@@ -52,28 +43,28 @@ class WhoisClient
     public $stimeout = 10;
 
     /** @var string[] List of servers and handlers (loaded from servers.whois) */
-    public $DATA = array();
+    public $DATA = [];
 
     /** @var string[] Non UTF-8 servers */
-    public $NON_UTF8 = array();
+    public $NON_UTF8 = [];
 
     /** @var string[] List of Whois servers with special parameters */
-    public $WHOIS_PARAM = array();
+    public $WHOIS_PARAM = [];
 
     /** @var string[] TLD's that have special whois servers or that can only be reached via HTTP */
-    public $WHOIS_SPECIAL = array();
+    public $WHOIS_SPECIAL = [];
 
     /** @var string[] Handled gTLD whois servers */
-    public $WHOIS_GTLD_HANDLER = array();
+    public $WHOIS_GTLD_HANDLER = [];
 
     /** @var string[] Array to contain all query publiciables */
-    public $query = array(
-        'tld' => '',
-        'type' => 'domain',
+    public $query = [
+        'tld'   => '',
+        'type'  => 'domain',
         'query' => '',
         'status',
-        'server'
-    );
+        'server',
+    ];
 
     /** @var string Current release of the package */
     public $codeVersion = null;
@@ -82,32 +73,31 @@ class WhoisClient
     public $version;
 
     /**
-     * Constructor function
+     * Constructor function.
      */
     public function __construct()
     {
         // Load DATA array
-        $servers = require('whois.servers.php');
+        $servers = require 'whois.servers.php';
 
-        $this->DATA               = $servers['DATA'];
-        $this->NON_UTF8           = $servers['NON_UTF8'];
-        $this->WHOIS_PARAM        = $servers['WHOIS_PARAM'];
-        $this->WHOIS_SPECIAL      = $servers['WHOIS_SPECIAL'];
+        $this->DATA = $servers['DATA'];
+        $this->NON_UTF8 = $servers['NON_UTF8'];
+        $this->WHOIS_PARAM = $servers['WHOIS_PARAM'];
+        $this->WHOIS_SPECIAL = $servers['WHOIS_SPECIAL'];
         $this->WHOIS_GTLD_HANDLER = $servers['WHOIS_GTLD_HANDLER'];
 
-        $this->codeVersion = file_get_contents(__DIR__ . '/../VERSION');
+        $this->codeVersion = \file_get_contents(__DIR__.'/../VERSION');
         // Set version
-        $this->version = sprintf("phpWhois v%s", $this->codeVersion);
+        $this->version = \sprintf('phpWhois v%s', $this->codeVersion);
     }
 
     /**
-     * Perform lookup
+     * Perform lookup.
      *
      * @return array Raw response as array separated by "\n"
      */
     public function getRawData($query)
     {
-
         $this->query['query'] = $query;
 
         // clear error description
@@ -118,46 +108,48 @@ class WhoisClient
         if (!isset($this->query['server'])) {
             $this->query['status'] = 'error';
             $this->query['errstr'][] = 'No server specified';
-            return (array());
+
+            return [];
         }
 
         // Check if protocol is http
-        if (substr($this->query['server'], 0, 7) == 'http://' ||
-            substr($this->query['server'], 0, 8) == 'https://'
+        if ('http://' === \mb_substr($this->query['server'], 0, 7) ||
+            'https://' === \mb_substr($this->query['server'], 0, 8)
         ) {
             $output = $this->httpQuery($this->query['server']);
 
             if (!$output) {
                 $this->query['status'] = 'error';
-                $this->query['errstr'][] = 'Connect failed to: ' . $this->query['server'];
-                return (array());
+                $this->query['errstr'][] = 'Connect failed to: '.$this->query['server'];
+
+                return [];
             }
 
-            $this->query['args'] = substr(strchr($this->query['server'], '?'), 1);
-            $this->query['server'] = strtok($this->query['server'], '?');
+            $this->query['args'] = \mb_substr(\mb_strstr($this->query['server'], '?'), 1);
+            $this->query['server'] = \strtok($this->query['server'], '?');
 
-            if (substr($this->query['server'], 0, 7) == 'http://') {
+            if ('http://' === \mb_substr($this->query['server'], 0, 7)) {
                 $this->query['server_port'] = 80;
             } else {
                 $this->query['server_port'] = 443;
             }
         } else {
             // Get args
-            if (strpos($this->query['server'], '?')) {
-                $parts = explode('?', $this->query['server']);
-                $this->query['server'] = trim($parts[0]);
-                $query_args = trim($parts[1]);
+            if (\mb_strpos($this->query['server'], '?')) {
+                $parts = \explode('?', $this->query['server']);
+                $this->query['server'] = \trim($parts[0]);
+                $query_args = \trim($parts[1]);
 
                 // replace substitution parameters
-                $query_args = str_replace('{query}', $query, $query_args);
-                $query_args = str_replace('{version}', 'phpWhois' . $this->codeVersion, $query_args);
+                $query_args = \str_replace('{query}', $query, $query_args);
+                $query_args = \str_replace('{version}', 'phpWhois'.$this->codeVersion, $query_args);
 
-                if (strpos($query_args, '{ip}') !== false) {
-                    $query_args = str_replace('{ip}', QueryUtils::getClientIp(), $query_args);
+                if (false !== \mb_strpos($query_args, '{ip}')) {
+                    $query_args = \str_replace('{ip}', QueryUtils::getClientIp(), $query_args);
                 }
 
-                if (strpos($query_args, '{hname}') !== false) {
-                    $query_args = str_replace('{hname}', gethostbyaddr(QueryUtils::getClientIp()), $query_args);
+                if (false !== \mb_strpos($query_args, '{hname}')) {
+                    $query_args = \str_replace('{hname}', \gethostbyaddr(QueryUtils::getClientIp()), $query_args);
                 }
             } else {
                 if (empty($this->query['args'])) {
@@ -169,19 +161,19 @@ class WhoisClient
 
             $this->query['args'] = $query_args;
 
-            if (substr($this->query['server'], 0, 9) == 'rwhois://') {
-                $this->query['server'] = substr($this->query['server'], 9);
+            if ('rwhois://' === \mb_substr($this->query['server'], 0, 9)) {
+                $this->query['server'] = \mb_substr($this->query['server'], 9);
             }
 
-            if (substr($this->query['server'], 0, 8) == 'whois://') {
-                $this->query['server'] = substr($this->query['server'], 8);
+            if ('whois://' === \mb_substr($this->query['server'], 0, 8)) {
+                $this->query['server'] = \mb_substr($this->query['server'], 8);
             }
 
             // Get port
-            if (strpos($this->query['server'], ':')) {
-                $parts = explode(':', $this->query['server']);
-                $this->query['server'] = trim($parts[0]);
-                $this->query['server_port'] = trim($parts[1]);
+            if (\mb_strpos($this->query['server'], ':')) {
+                $parts = \explode(':', $this->query['server']);
+                $this->query['server'] = \trim($parts[0]);
+                $this->query['server_port'] = \trim($parts[1]);
             } else {
                 $this->query['server_port'] = $this->port;
             }
@@ -189,47 +181,49 @@ class WhoisClient
             // Connect to whois server, or return if failed
             $ptr = $this->connect();
 
-            if ($ptr === false) {
+            if (false === $ptr) {
                 $this->query['status'] = 'error';
-                $this->query['errstr'][] = 'Connect failed to: ' . $this->query['server'];
-                return array();
+                $this->query['errstr'][] = 'Connect failed to: '.$this->query['server'];
+
+                return [];
             }
 
-            stream_set_timeout($ptr, $this->stimeout);
-            stream_set_blocking($ptr, 0);
+            \stream_set_timeout($ptr, $this->stimeout);
+            \stream_set_blocking($ptr, 0);
 
             // Send query
-            fputs($ptr, trim($query_args) . "\r\n");
+            \fwrite($ptr, \trim($query_args)."\r\n");
 
             // Prepare to receive result
             $raw = '';
-            $start = time();
+            $start = \time();
             $null = null;
-            $r = array($ptr);
+            $r = [$ptr];
 
-            while (!feof($ptr)) {
+            while (!\feof($ptr)) {
                 if (!empty($r)) {
-                    if (stream_select($r, $null, $null, $this->stimeout)) {
-                        $raw .= fgets($ptr, $this->buffer);
+                    if (\stream_select($r, $null, $null, $this->stimeout)) {
+                        $raw .= \fgets($ptr, $this->buffer);
                     }
                 }
 
-                if (time() - $start > $this->stimeout) {
+                if (\time() - $start > $this->stimeout) {
                     $this->query['status'] = 'error';
-                    $this->query['errstr'][] = 'Timeout reading from ' . $this->query['server'];
-                    return array();
+                    $this->query['errstr'][] = 'Timeout reading from '.$this->query['server'];
+
+                    return [];
                 }
             }
 
-            if (array_key_exists($this->query['server'], $this->NON_UTF8)) {
-                $raw = utf8_encode($raw);
+            if (\array_key_exists($this->query['server'], $this->NON_UTF8)) {
+                $raw = \utf8_encode($raw);
             }
 
-            $output = explode("\n", $raw);
+            $output = \explode("\n", $raw);
 
             // Drop empty last line (if it's empty! - saleck)
-            if (empty($output[count($output) - 1])) {
-                unset($output[count($output) - 1]);
+            if (empty($output[\count($output) - 1])) {
+                unset($output[\count($output) - 1]);
             }
         }
 
@@ -237,24 +231,22 @@ class WhoisClient
     }
 
     /**
-     * Perform lookup
+     * Perform lookup.
      *
      * @return array The *rawdata* element contains an
-     * array of lines gathered from the whois query. If a top level domain
-     * handler class was found for the domain, other elements will have been
-     * populated too.
+     *               array of lines gathered from the whois query. If a top level domain
+     *               handler class was found for the domain, other elements will have been
+     *               populated too.
      */
-
     public function getData($query = '', $deep_whois = true)
     {
-
         // If domain to query passed in, use it, otherwise use domain from initialisation
         $query = !empty($query) ? $query : $this->query['query'];
 
         $output = $this->getRawData($query);
 
         // Create result and set 'rawdata'
-        $result = array('rawdata' => $output);
+        $result = ['rawdata' => $output];
         $result = $this->setWhoisInfo($result);
 
         // Return now on error
@@ -273,7 +265,7 @@ class WhoisClient
 
             // Add new servers to the server list
             if (isset($result['regyinfo']['servers'])) {
-                $result['regyinfo']['servers'] = array_merge($servers, $result['regyinfo']['servers']);
+                $result['regyinfo']['servers'] = \array_merge($servers, $result['regyinfo']['servers']);
             } else {
                 $result['regyinfo']['servers'] = $servers;
             }
@@ -295,24 +287,25 @@ class WhoisClient
         }
 
         // Fix/add nameserver information
-        if (method_exists($this, 'fixResult') && $this->query['tld'] != 'ip') {
+        if (\method_exists($this, 'fixResult') && 'ip' !== $this->query['tld']) {
             $this->fixResult($result, $query);
         }
 
-        return ($result);
+        return $result;
     }
 
     /**
-     * Adds whois server query information to result
+     * Adds whois server query information to result.
      *
      * @param $result array Result array
+     *
      * @return array Original result array with server query information
      */
     public function setWhoisInfo($result)
     {
-        $info = array(
+        $info = [
             'server' => $this->query['server'],
-        );
+        ];
 
         if (!empty($this->query['args'])) {
             $info['args'] = $this->query['args'];
@@ -340,16 +333,15 @@ class WhoisClient
     }
 
     /**
-     * Convert html output to plain text
+     * Convert html output to plain text.
      *
      * @return array Rawdata
      */
     public function httpQuery()
     {
-
         //echo ini_get('allow_url_fopen');
         //if (ini_get('allow_url_fopen'))
-        $lines = @file($this->query['server']);
+        $lines = @\file($this->query['server']);
 
         if (!$lines) {
             return false;
@@ -358,45 +350,45 @@ class WhoisClient
         $output = '';
         $pre = '';
 
-        while (list($key, $val) = each($lines)) {
-            $val = trim($val);
+        while (list($key, $val) = \each($lines)) {
+            $val = \trim($val);
 
-            $pos = strpos(strtoupper($val), '<PRE>');
-            if ($pos !== false) {
+            $pos = \mb_strpos(\mb_strtoupper($val), '<PRE>');
+            if (false !== $pos) {
                 $pre = "\n";
-                $output .= substr($val, 0, $pos) . "\n";
-                $val = substr($val, $pos + 5);
+                $output .= \mb_substr($val, 0, $pos)."\n";
+                $val = \mb_substr($val, $pos + 5);
             }
-            $pos = strpos(strtoupper($val), '</PRE>');
-            if ($pos !== false) {
+            $pos = \mb_strpos(\mb_strtoupper($val), '</PRE>');
+            if (false !== $pos) {
                 $pre = '';
-                $output .= substr($val, 0, $pos) . "\n";
-                $val = substr($val, $pos + 6);
+                $output .= \mb_substr($val, 0, $pos)."\n";
+                $val = \mb_substr($val, $pos + 6);
             }
-            $output .= $val . $pre;
+            $output .= $val.$pre;
         }
 
-        $search = array(
+        $search = [
             '<BR>', '<P>', '</TITLE>',
             '</H1>', '</H2>', '</H3>',
             '<br>', '<p>', '</title>',
-            '</h1>', '</h2>', '</h3>');
+            '</h1>', '</h2>', '</h3>', ];
 
-        $output = str_replace($search, "\n", $output);
-        $output = str_replace('<TD', ' <td', $output);
-        $output = str_replace('<td', ' <td', $output);
-        $output = str_replace('<tr', "\n<tr", $output);
-        $output = str_replace('<TR', "\n<tr", $output);
-        $output = str_replace('&nbsp;', ' ', $output);
-        $output = strip_tags($output);
-        $output = explode("\n", $output);
+        $output = \str_replace($search, "\n", $output);
+        $output = \str_replace('<TD', ' <td', $output);
+        $output = \str_replace('<td', ' <td', $output);
+        $output = \str_replace('<tr', "\n<tr", $output);
+        $output = \str_replace('<TR', "\n<tr", $output);
+        $output = \str_replace('&nbsp;', ' ', $output);
+        $output = \strip_tags($output);
+        $output = \explode("\n", $output);
 
-        $rawdata = array();
+        $rawdata = [];
         $null = 0;
 
-        while (list($key, $val) = each($output)) {
-            $val = trim($val);
-            if ($val == '') {
+        while (list($key, $val) = \each($output)) {
+            $val = \trim($val);
+            if ('' === $val) {
                 if (++$null > 2) {
                     continue;
                 }
@@ -405,6 +397,7 @@ class WhoisClient
             }
             $rawdata[] = $val;
         }
+
         return $rawdata;
     }
 
@@ -417,12 +410,11 @@ class WhoisClient
      */
     public function connect($server = null)
     {
-
         if (empty($server)) {
             $server = $this->query['server'];
         }
 
-        /** @TODO Throw an exception here */
+        /* @TODO Throw an exception here */
         if (empty($server)) {
             return false;
         }
@@ -432,7 +424,7 @@ class WhoisClient
         $parsed = $this->parseServer($server);
         $server = $parsed['host'];
 
-        if (array_key_exists('port', $parsed)) {
+        if (\array_key_exists('port', $parsed)) {
             $port = $parsed['port'];
         }
 
@@ -444,20 +436,21 @@ class WhoisClient
             $this->query['status'] = 'ready';
 
             // Connect to whois port
-            $ptr = @fsockopen($server, $port, $errno, $errstr, $this->stimeout);
+            $ptr = @\fsockopen($server, $port, $errno, $errstr, $this->stimeout);
 
             if ($ptr > 0) {
                 $this->query['status'] = 'ok';
+
                 return $ptr;
             }
 
             // Failed this attempt
             $this->query['status'] = 'error';
             $this->query['error'][] = $errstr;
-            $retry++;
+            ++$retry;
 
             // Sleep before retrying
-            sleep($this->sleep);
+            \sleep($this->sleep);
         }
 
         // If we get this far, it hasn't worked
@@ -468,33 +461,32 @@ class WhoisClient
      * Post-process result with handler class.
      *
      * @return array On success, returns the result from the handler.
-     * On failure, returns passed result unaltered.
+     *               On failure, returns passed result unaltered.
      */
-
     public function process(&$result, $deep_whois = true)
     {
-
-        $handler_name = str_replace('.', '_', $this->query['handler']);
+        $handler_name = \str_replace('.', '_', $this->query['handler']);
 
         // If the handler has not already been included somehow, include it now
-        $HANDLER_FLAG = sprintf("__%s_HANDLER__", strtoupper($handler_name));
+        $HANDLER_FLAG = \sprintf('__%s_HANDLER__', \mb_strtoupper($handler_name));
 
-        if (!defined($HANDLER_FLAG)) {
-            include($this->query['file']);
+        if (!\defined($HANDLER_FLAG)) {
+            include $this->query['file'];
         }
 
         // If the handler has still not been included, append to query errors list and return
-        if (!defined($HANDLER_FLAG)) {
-            $this->query['errstr'][] = "Can't find $handler_name handler: " . $this->query['file'];
+        if (!\defined($HANDLER_FLAG)) {
+            $this->query['errstr'][] = "Can't find $handler_name handler: ".$this->query['file'];
+
             return $result;
         }
 
-        if (!$this->gtldRecurse && $this->query['file'] == 'whois.gtld.php') {
+        if (!$this->gtldRecurse && 'whois.gtld.php' === $this->query['file']) {
             return $result;
         }
 
         // Pass result to handler
-        $object = $handler_name . '_handler';
+        $object = $handler_name.'_handler';
 
         $handler = new $object('');
 
@@ -513,13 +505,12 @@ class WhoisClient
     }
 
     /**
-     * Does more (deeper) whois
+     * Does more (deeper) whois.
      *
      * @return array Resulting array
      */
     public function deepWhois($query, $result)
     {
-
         if (!isset($result['regyinfo']['whois'])) {
             return $result;
         }
@@ -535,16 +526,16 @@ class WhoisClient
             if (isset($this->WHOIS_GTLD_HANDLER[$wserver])) {
                 $this->query['handler'] = $this->WHOIS_GTLD_HANDLER[$wserver];
             } else {
-                $parts = explode('.', $wserver);
-                $hname = strtolower($parts[1]);
+                $parts = \explode('.', $wserver);
+                $hname = \mb_strtolower($parts[1]);
 
-                if (($fp = @fopen('whois.gtld.' . $hname . '.php', 'r', 1)) and fclose($fp)) {
+                if (($fp = @\fopen('whois.gtld.'.$hname.'.php', 'r', 1)) and \fclose($fp)) {
                     $this->query['handler'] = $hname;
                 }
             }
 
             if (!empty($this->query['handler'])) {
-                $this->query['file'] = sprintf('whois.gtld.%s.php', $this->query['handler']);
+                $this->query['file'] = \sprintf('whois.gtld.%s.php', $this->query['handler']);
                 $regrinfo = $this->process($subresult); //$result['rawdata']);
                 $result['regrinfo'] = $this->mergeResults($result['regrinfo'], $regrinfo);
                 //$result['rawdata'] = $subresult;
@@ -555,7 +546,7 @@ class WhoisClient
     }
 
     /**
-     * Merge results
+     * Merge results.
      *
      * @param array $a1
      * @param array $a2
@@ -564,18 +555,17 @@ class WhoisClient
      */
     public function mergeResults($a1, $a2)
     {
+        \reset($a2);
 
-        reset($a2);
-
-        while (list($key, $val) = each($a2)) {
+        while (list($key, $val) = \each($a2)) {
             if (isset($a1[$key])) {
-                if (is_array($val)) {
-                    if ($key != 'nserver') {
+                if (\is_array($val)) {
+                    if ('nserver' !== $key) {
                         $a1[$key] = $this->mergeResults($a1[$key], $val);
                     }
                 } else {
-                    $val = trim($val);
-                    if ($val != '') {
+                    $val = \trim($val);
+                    if ('' !== $val) {
                         $a1[$key] = $val;
                     }
                 }
@@ -588,7 +578,7 @@ class WhoisClient
     }
 
     /**
-     * Remove unnecessary symbols from nameserver received from whois server
+     * Remove unnecessary symbols from nameserver received from whois server.
      *
      * @param string[] $nserver List of received nameservers
      *
@@ -596,23 +586,23 @@ class WhoisClient
      */
     public function fixNameServer($nserver)
     {
-        $dns = array();
+        $dns = [];
 
         foreach ($nserver as $val) {
-            $val = str_replace(array('[', ']', '(', ')'), '', trim($val));
-            $val = str_replace("\t", ' ', $val);
-            $parts = explode(' ', $val);
+            $val = \str_replace(['[', ']', '(', ')'], '', \trim($val));
+            $val = \str_replace("\t", ' ', $val);
+            $parts = \explode(' ', $val);
             $host = '';
             $ip = '';
 
             foreach ($parts as $p) {
-                if (substr($p, -1) == '.') {
-                    $p = substr($p, 0, -1);
+                if ('.' === \mb_substr($p, -1)) {
+                    $p = \mb_substr($p, 0, -1);
                 }
 
-                if ((ip2long($p) == -1) or (ip2long($p) === false)) {
+                if ((-1 === \ip2long($p)) or (false === \ip2long($p))) {
                     // Hostname ?
-                    if ($host == '' && preg_match('/^[\w\-]+(\.[\w\-]+)+$/', $p)) {
+                    if ('' === $host && \preg_match('/^[\w\-]+(\.[\w\-]+)+$/', $p)) {
                         $host = $p;
                     }
                 } else {
@@ -622,56 +612,58 @@ class WhoisClient
             }
 
             // Valid host name ?
-            if ($host == '') {
+            if ('' === $host) {
                 continue;
             }
 
             // Get ip address
-            if ($ip == '') {
-                $ip = gethostbyname($host);
-                if ($ip == $host) {
+            if ('' === $ip) {
+                $ip = \gethostbyname($host);
+                if ($ip === $host) {
                     $ip = '(DOES NOT EXIST)';
                 }
             }
 
-            if (substr($host, -1, 1) == '.') {
-                $host = substr($host, 0, -1);
+            if ('.' === \mb_substr($host, -1, 1)) {
+                $host = \mb_substr($host, 0, -1);
             }
 
-            $dns[strtolower($host)] = $ip;
+            $dns[\mb_strtolower($host)] = $ip;
         }
 
         return $dns;
     }
 
     /**
-     * Parse server string into array with host and port keys
+     * Parse server string into array with host and port keys.
      *
      * @param $server   server string in various formattes
-     * @return array    Array containing 'host' key with server host and 'port' if defined in original $server string
+     *
+     * @return array Array containing 'host' key with server host and 'port' if defined in original $server string
      */
     public function parseServer($server)
     {
-        $server = trim($server);
+        $server = \trim($server);
 
-        $server = preg_replace('/\/$/', '', $server);
+        $server = \preg_replace('/\/$/', '', $server);
         if ((new QueryUtils())->validIpv6($server)) {
-            $result = array('host' => "[$server]");
+            $result = ['host' => "[$server]"];
         } else {
-            $parsed = parse_url($server);
-            if (array_key_exists('path', $parsed) && !array_key_exists('host', $parsed)) {
-                $host = preg_replace('/\//', '', $parsed['path']);
+            $parsed = \parse_url($server);
+            if (\array_key_exists('path', $parsed) && !\array_key_exists('host', $parsed)) {
+                $host = \preg_replace('/\//', '', $parsed['path']);
 
                 // if host is ipv6 with port. Example: [1a80:1f45::ebb:12]:8080
-                if (preg_match('/^(\[[a-f0-9:]+\]):(\d{1,5})$/i', $host, $matches)) {
-                    $result = array('host' => $matches[1], 'port' => $matches[2]);
+                if (\preg_match('/^(\[[a-f0-9:]+\]):(\d{1,5})$/i', $host, $matches)) {
+                    $result = ['host' => $matches[1], 'port' => $matches[2]];
                 } else {
-                    $result = array('host' => $host);
+                    $result = ['host' => $host];
                 }
             } else {
                 $result = $parsed;
             }
         }
+
         return $result;
     }
 }

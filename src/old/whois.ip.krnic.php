@@ -1,71 +1,66 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- * @link http://phpwhois.pw
- * @copyright Copyright (C)1999,2005 easyDNS Technologies Inc. & Mark Jeftovic
- * @copyright Maintained by David Saez
- * @copyright Copyright (c) 2014 Dmitry Lukashin
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is released under GNU General Public License v2.
+ *
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
-if (!defined('__KRNIC_HANDLER__'))
-    define('__KRNIC_HANDLER__', 1);
+if (!\defined('__KRNIC_HANDLER__')) {
+    \define('__KRNIC_HANDLER__', 1);
+}
 
-require_once('whois.parser.php');
+require_once 'whois.parser.php';
 
-class krnic_handler {
-
-    function parse($data_str, $query) {
-        $blocks = array(
-            'owner1' => '[ Organization Information ]',
-            'tech1' => '[ Technical Contact Information ]',
-            'owner2' => '[ ISP Organization Information ]',
-            'admin2' => '[ ISP IP Admin Contact Information ]',
-            'tech2' => '[ ISP IP Tech Contact Information ]',
-            'admin3' => '[ ISP IPv4 Admin Contact Information ]',
-            'tech3' => '[ ISP IPv4 Tech Contact Information ]',
-            'abuse' => '[ ISP Network Abuse Contact Information ]',
+class krnic_handler
+{
+    public function parse($data_str, $query)
+    {
+        $blocks = [
+            'owner1'          => '[ Organization Information ]',
+            'tech1'           => '[ Technical Contact Information ]',
+            'owner2'          => '[ ISP Organization Information ]',
+            'admin2'          => '[ ISP IP Admin Contact Information ]',
+            'tech2'           => '[ ISP IP Tech Contact Information ]',
+            'admin3'          => '[ ISP IPv4 Admin Contact Information ]',
+            'tech3'           => '[ ISP IPv4 Tech Contact Information ]',
+            'abuse'           => '[ ISP Network Abuse Contact Information ]',
             'network.inetnum' => 'IPv4 Address       :',
-            'network.name' => 'Network Name       :',
-            'network.mnt-by' => 'Connect ISP Name   :',
-            'network.created' => 'Registration Date  :'
-        );
+            'network.name'    => 'Network Name       :',
+            'network.mnt-by'  => 'Connect ISP Name   :',
+            'network.created' => 'Registration Date  :',
+        ];
 
-        $items = array(
+        $items = [
             'Orgnization ID     :' => 'handle',
-            'Org Name      :' => 'organization',
+            'Org Name      :'      => 'organization',
             'Org Name           :' => 'organization',
-            'Name          :' => 'name',
+            'Name          :'      => 'name',
             'Name               :' => 'name',
-            'Org Address   :' => 'address.street',
-            'Zip Code      :' => 'address.pcode',
-            'State         :' => 'address.state',
+            'Org Address   :'      => 'address.street',
+            'Zip Code      :'      => 'address.pcode',
+            'State         :'      => 'address.state',
             'Address            :' => 'address.street',
             'Zip Code           :' => 'address.pcode',
-            'Phone         :' => 'phone',
+            'Phone         :'      => 'phone',
             'Phone              :' => 'phone',
-            'Fax           :' => 'fax',
-            'E-Mail        :' => 'email',
-            'E-Mail             :' => 'email'
-        );
+            'Fax           :'      => 'fax',
+            'E-Mail        :'      => 'email',
+            'E-Mail             :' => 'email',
+        ];
 
         $b = get_blocks($data_str, $blocks);
 
-        $r = array();
+        $r = [];
         if (isset($b['network'])) {
             $r['network'] = $b['network'];
         }
@@ -95,11 +90,10 @@ class krnic_handler {
 
         $r = format_dates($r, 'Ymd');
 
-        $r = array('regrinfo' => $r);
+        $r = ['regrinfo' => $r];
         $r['regyinfo']['type'] = 'ip';
         $r['regyinfo']['registrar'] = 'Korean Network Information Centre';
 
         return $r;
     }
-
 }

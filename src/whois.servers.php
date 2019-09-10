@@ -1,33 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * Whois servers list
- * 
- * This class supposed to be instantiated for using the phpWhois library
- * 
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2
- * @license
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- * @link http://phpwhois.pw
- * @copyright Copyright (C)1999,2005 easyDNS Technologies Inc. & Mark Jeftovic
- * @copyright Maintained by David Saez
- * @copyright Copyright (c) 2014 Dmitry Lukashin
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is released under GNU General Public License v2.
+ *
+ * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
+ * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2014-2019 Dmitry Lukashin
+ * @copyright 2019-2020 Niko Granö (https://granö.fi)
+ *
  */
 
-return array(
-'DATA' => array(
+return [
+'DATA' => [
     'bz'       => 'gtld',
     'com'      => 'gtld',
     'jobs'     => 'gtld',
@@ -39,11 +28,11 @@ return array(
     'za.net'   => 'zanet',
     // Punicode
     'xn--p1ai' => 'ru',
-),
+],
 
 /* Non UTF-8 servers */
 
-'NON_UTF8' => array(
+'NON_UTF8' => [
     'br.whois-servers.net'  => 1,
     'ca.whois-servers.net'  => 1,
     'cl.whois-servers.net'  => 1,
@@ -54,20 +43,20 @@ return array(
     'whois.lacnic.net'      => 1,
     'whois.nicline.com'     => 1,
     'whois.ripe.net'        => 1,
-),
+],
 
 /* If whois Server needs any parameters, enter it here */
 
-'WHOIS_PARAM' => array(
+'WHOIS_PARAM' => [
     'com.whois-servers.net' => 'domain =$',
     'net.whois-servers.net' => 'domain =$',
     'de.whois-servers.net'  => '-T dn,ace $',
     'jp.whois-servers.net'  => 'DOM $/e',
-),
+],
 
 /* TLD's that have special whois servers or that can only be reached via HTTP */
 
-'WHOIS_SPECIAL' => array(
+'WHOIS_SPECIAL' => [
     'ac'                     => 'whois.nic.ac',
     'academy'                => 'whois.donuts.co',
     'accountants'            => 'whois.donuts.co',
@@ -639,11 +628,11 @@ return array(
     'xn--yfro4i67o'          => 'whois.sgnic.sg',
     'xn--ygbi2ammx'          => 'whois.pnina.ps',
     'xn--zfr164b'            => 'whois.conac.cn',
-),
+],
 
 /* handled gTLD whois servers */
 
-'WHOIS_GTLD_HANDLER' => array(
+'WHOIS_GTLD_HANDLER' => [
     'whois.bulkregister.com' => 'enom',
     'whois.dotregistrar.com' => 'dotster',
     'whois.namesdirect.com'  => 'dotster',
@@ -653,6 +642,6 @@ return array(
     'whois.35.com'           => 'onlinenic',
     'whois.nominalia.com'    => 'genericb',
     'whois.encirca.com'      => 'genericb',
-    'whois.corenic.net'      => 'genericb'
-),
-);
+    'whois.corenic.net'      => 'genericb',
+],
+];
