@@ -178,13 +178,24 @@ class Whois
         $registered = $parsed['dates']['registered'];
         $updated = $parsed['dates']['updated'];
 
-        return new ImmutableResponse(
-            $lookup->getQuery(),
-            $lookup->getRaw(),
-            false !== $expires ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$expires)) : null,
-            false !== $registered ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$registered)) : null,
-            false !== $updated ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$updated)) : null,
-            $lookup->getParsed()['keyValue']
-        );
+        try {
+            return new ImmutableResponse(
+                $lookup->getQuery(),
+                $lookup->getRaw(),
+                false !== $expires ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$expires)) : null,
+                false !== $registered ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$registered)) : null,
+                false !== $updated ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$updated)) : null,
+                $lookup->getParsed()['keyValue']
+            );
+        } catch (\Exception $e) {
+            return new ImmutableResponse(
+                $lookup->getQuery(),
+                $lookup->getRaw(),
+                null,
+                null,
+                null,
+                $lookup->getParsed()['keyValue']
+            );
+        }
     }
 }
