@@ -21,11 +21,11 @@ use TrueBV\Punycode;
 
 final class Query
 {
-    const QTYPE_UNKNOWN = -1;
-    const QTYPE_DOMAIN = 1;
-    const QTYPE_IPV4 = 2;
-    const QTYPE_IPV6 = 3;
-    const QTYPE_AS = 4;
+    public const QTYPE_UNKNOWN = -1;
+    public const QTYPE_DOMAIN = 1;
+    public const QTYPE_IPV4 = 2;
+    public const QTYPE_IPV6 = 3;
+    public const QTYPE_AS = 4;
 
     /**
      * @var int Query type (see constants)
@@ -75,7 +75,7 @@ final class Query
      *
      * @throws \InvalidArgumentException if address is not recognized
      */
-    public function setAddress($address)
+    public function setAddress($address): self
     {
         $type = $this->guessType($address);
 
@@ -92,9 +92,9 @@ final class Query
     }
 
     /**
-     * @return string Address, optimized for querying whois server
+     * @return string|null Address, optimized for querying whois server
      */
-    public function getAddress()
+    public function getAddress(): string
     {
         return $this->address;
     }
@@ -106,7 +106,7 @@ final class Query
      *
      * @return $this
      */
-    private function setAddressOrig($address)
+    private function setAddressOrig($address): self
     {
         $this->addressOrig = $address;
 
@@ -118,7 +118,7 @@ final class Query
      *
      * @return string Original unoptimized address
      */
-    public function getAddressOrig()
+    public function getAddressOrig(): string
     {
         return $this->addressOrig;
     }
@@ -128,7 +128,7 @@ final class Query
      *
      * @return bool
      */
-    public function hasData()
+    public function hasData(): bool
     {
         return null !== $this->getAddress();
     }
@@ -140,7 +140,7 @@ final class Query
      *
      * @return $this
      */
-    private function setType($type)
+    private function setType($type): self
     {
         $this->type = $type;
 
@@ -152,7 +152,7 @@ final class Query
      *
      * @return string[]
      */
-    public function getParams()
+    public function getParams(): array
     {
         return $this->params;
     }
@@ -164,7 +164,7 @@ final class Query
      *
      * @return $this
      */
-    public function addParam($param)
+    public function addParam($param): self
     {
         $this->params[] = (string) $param;
 
@@ -174,9 +174,9 @@ final class Query
     /**
      * @return int
      */
-    public function getType()
+    public function getType(): int
     {
-        return ($this->type) ?: self::QTYPE_UNKNOWN;
+        return $this->type ?: self::QTYPE_UNKNOWN;
     }
 
     /**
@@ -188,7 +188,7 @@ final class Query
      *
      * @return string optimized address
      */
-    public function optimizeAddress($address)
+    public function optimizeAddress($address): string
     {
         $type = $this->guessType($address);
         if (self::QTYPE_DOMAIN === $type) {
@@ -210,15 +210,15 @@ final class Query
      *
      * @return int Query type
      */
-    public function guessType($address)
+    public function guessType($address): int
     {
         $q = new QueryUtils();
 
         if ($q->validIp($address, 'ipv4', false)) {
-            return ($q->validIp($address, 'ipv4')) ? self::QTYPE_IPV4 : self::QTYPE_UNKNOWN;
+            return $q->validIp($address, 'ipv4') ? self::QTYPE_IPV4 : self::QTYPE_UNKNOWN;
         }
         if ($q->validIp($address, 'ipv6', false)) {
-            return ($q->validIp($address, 'ipv6')) ? self::QTYPE_IPV6 : self::QTYPE_UNKNOWN;
+            return $q->validIp($address, 'ipv6') ? self::QTYPE_IPV6 : self::QTYPE_UNKNOWN;
         }
         if ($q->validDomain($address)) {
             return self::QTYPE_DOMAIN;
