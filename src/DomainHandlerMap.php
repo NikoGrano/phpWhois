@@ -17,13 +17,14 @@ declare(strict_types=1);
 
 namespace phpWhois;
 
-class DomainHandlerMap
+final class DomainHandlerMap
 {
     /**
      * @var array Mappings from domain name to handler class
      */
     private $map = [
         '/\.bg$/i'               => Handler\Bg::class,
+        '/\.fi$/i'               => Handler\Fi::class,
         '/\.fr$/i'               => Handler\Registrar\Frnic::class,
         '/\.hm$/i'               => Handler\Hm::class,
         '/\.hu$/i'               => Handler\Hu::class,
@@ -43,10 +44,6 @@ class DomainHandlerMap
         '/\.uy$/i'               => Handler\Uy::class,
         '/\.wf$/i'               => Handler\Registrar\Frnic::class,
         '/\.yt$/i'               => Handler\Registrar\Frnic::class,
-//        '/^(?:[a-z0-9\-]+?\.){1,2}ru$/i' => Handler\Registrar\NicRu::class,
-//        '/^(?:[a-z0-9\-]+?\.){1,2}su$/i' => Handler\Registrar\NicRu::class,
-//        '/^(?:[a-z0-9\-]+?\.){1}ru\.net$/i' => Handler\Registrar\NicRu::class,
-//        '/^(?:[a-z0-9\-]+?\.){1}\.moscow$/i' => Handler\Registrar\NicRu::class,
     ];
 
     /**
@@ -66,7 +63,7 @@ class DomainHandlerMap
      *
      * @return string|null
      */
-    public function findHandler($address)
+    public function findHandler(string $address): ?string
     {
         foreach ($this->getMap() as $pattern => $class) {
             if (\preg_match($pattern, $address)) {

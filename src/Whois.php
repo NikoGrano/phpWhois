@@ -106,7 +106,7 @@ class Whois
             throw new \InvalidArgumentException('Specified handler class wasn\'t found');
         }
 
-        $handler = new $handler($this->getQuery());
+        $handler = new $handler($this->getQuery(), null);
 
         if (!($handler instanceof HandlerBase)) {
             throw new \InvalidArgumentException('Handler must be an instance of phpWhois\Handler\HandlerBase');
@@ -136,11 +136,12 @@ class Whois
      *
      * @param string|null $address
      *
-     * @return Response Response from the whois server
+     * @return ImmutableResponse Response from the whois server
      *
      * @throws \InvalidArgumentException if address is empty
+     * @throws \Exception
      */
-    public function lookup($address = null): Response
+    public function lookup(?string $address = null): ImmutableResponse
     {
         if (null !== $address) {
             $this->setAddress($address);
@@ -171,6 +172,20 @@ class Whois
             $this->getHandler()->setServer($serverAddress);
         }
 
-        return $this->getHandler()->lookup();
+        $lookup = $this->getHandler()->lookup();
+
+        $parsed = $lookup->getParsed();
+        $expires = $parsed['dates']['expires'];
+        $registered = $parsed['dates']['registered'];
+        $updated = $parsed['dates']['updated'];
+
+        return new ImmutableResponse(
+            $lookup->getQuery(),
+            $lookup->getRaw(),
+            false !== $expires ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$expires)) : null,
+            false !== $registered ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$registered)) : null,
+            false !== $updated ? new \DateTimeImmutable(\date(DATE_ATOM, (int)$updated)) : null,
+            $lookup->getParsed()['keyValue']
+        );
     }
 }

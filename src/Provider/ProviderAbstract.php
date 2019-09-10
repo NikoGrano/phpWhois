@@ -92,13 +92,13 @@ abstract class ProviderAbstract
      *
      * @return string
      */
-    abstract protected function performRequest();
+    abstract protected function performRequest(): string;
 
     /**
-     * @param Query       $query
-     * @param string|null $server
+     * @param Query  $query
+     * @param string $server
      */
-    public function __construct(Query $query, $server = null)
+    public function __construct(Query $query, string $server)
     {
         $this->setQuery($query);
         $this->setServer($server);
@@ -111,25 +111,22 @@ abstract class ProviderAbstract
      *
      * @return $this
      */
-    public function setServer($server)
+    public function setServer(string $server): self
     {
-        /**
-         * TODO: Check if server is not empty.
-         */
         $parts = \explode(':', $server);
         $this->server = $parts[0];
 
         if (2 === \count($parts)) {
-            $this->setPort((int) ($parts[1]));
+            $this->setPort((int)$parts[1]);
         }
 
         return $this;
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getServer()
+    public function getServer(): string
     {
         return $this->server;
     }
@@ -143,7 +140,7 @@ abstract class ProviderAbstract
      *
      * @throws \InvalidArgumentException
      */
-    public function setPort($port)
+    public function setPort($port): self
     {
         if (!\is_int($port)) {
             throw new \InvalidArgumentException('Port number must be an integer');
@@ -158,7 +155,7 @@ abstract class ProviderAbstract
      *
      * @return int|null
      */
-    public function getPort()
+    public function getPort(): ?int
     {
         return $this->port;
     }
@@ -172,7 +169,7 @@ abstract class ProviderAbstract
      *
      * @throws \InvalidArgumentException
      */
-    public function setTimeout($timeout = 10)
+    public function setTimeout($timeout = 10): self
     {
         if (!\is_int($timeout)) {
             throw new \InvalidArgumentException('Timeout must be integer number of seconds');
@@ -187,7 +184,7 @@ abstract class ProviderAbstract
      *
      * @return int
      */
-    public function getTimeout()
+    public function getTimeout(): int
     {
         return $this->timeout;
     }
@@ -201,7 +198,7 @@ abstract class ProviderAbstract
      *
      * @throws \InvalidArgumentException
      */
-    public function setRetry($retry = 0)
+    public function setRetry($retry = 0): self
     {
         if (!\is_int($retry)) {
             throw new \InvalidArgumentException('Number of retries must be integer value');
@@ -216,7 +213,7 @@ abstract class ProviderAbstract
      *
      * @return int Number of retries. 0 - connect once (no retries)
      */
-    public function getRetry()
+    public function getRetry(): int
     {
         return $this->retry;
     }
@@ -230,7 +227,7 @@ abstract class ProviderAbstract
      *
      * @throws \InvalidArgumentException
      */
-    public function setSleep($sleep = 0)
+    public function setSleep($sleep = 0): self
     {
         if (!\is_int($sleep)) {
             throw new \InvalidArgumentException('Number of seconds to sleep must be integer');
@@ -246,7 +243,7 @@ abstract class ProviderAbstract
      *
      * @return int
      */
-    public function getSleep()
+    public function getSleep(): int
     {
         return $this->sleep;
     }
@@ -258,7 +255,7 @@ abstract class ProviderAbstract
      *
      * @return $this
      */
-    protected function setConnectionErrNo($errno)
+    protected function setConnectionErrNo($errno): self
     {
         $this->connectionErrNo = $errno;
 
@@ -270,7 +267,7 @@ abstract class ProviderAbstract
      *
      * @return int|null
      */
-    public function getConnectionErrNo()
+    public function getConnectionErrNo(): ?int
     {
         return $this->connectionErrNo;
     }
@@ -282,7 +279,7 @@ abstract class ProviderAbstract
      *
      * @return $this
      */
-    protected function setConnectionErrStr($errstr)
+    protected function setConnectionErrStr($errstr): self
     {
         $this->connectionErrStr = $errstr;
 
@@ -294,7 +291,7 @@ abstract class ProviderAbstract
      *
      * @return string|null
      */
-    public function getConnectionErrStr()
+    public function getConnectionErrStr(): ?string
     {
         return $this->connectionErrStr;
     }
@@ -352,7 +349,7 @@ abstract class ProviderAbstract
      *
      * @throws \InvalidArgumentException
      */
-    public function setQuery(Query $query)
+    public function setQuery(Query $query): self
     {
         if ($query->hasData()) {
             $this->query = $query;
@@ -363,7 +360,7 @@ abstract class ProviderAbstract
         return $this;
     }
 
-    public function getQuery()
+    public function getQuery(): Query
     {
         return $this->query;
     }
@@ -375,7 +372,7 @@ abstract class ProviderAbstract
      *
      * @return $this
      */
-    public function setRawQuery($rawQuery)
+    public function setRawQuery($rawQuery): self
     {
         $this->rawQuery = $rawQuery;
 
@@ -385,7 +382,7 @@ abstract class ProviderAbstract
     /**
      * @return string
      */
-    public function getRawQuery()
+    public function getRawQuery(): string
     {
         return $this->rawQuery;
     }
@@ -395,7 +392,7 @@ abstract class ProviderAbstract
      *
      * @return bool
      */
-    public function hasData()
+    public function hasData(): bool
     {
         return $this->getQuery()->hasData()
             && !empty($this->getServer())
@@ -407,12 +404,10 @@ abstract class ProviderAbstract
      *
      * @return string
      */
-    public function lookup()
+    public function lookup(): string
     {
-        $raw = $this
+        return $this
                 ->connect()
                 ->performRequest();
-
-        return $raw;
     }
 }

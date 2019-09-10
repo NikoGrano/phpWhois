@@ -99,7 +99,7 @@ class WhoisServer extends ProviderAbstract
     /**
      * {@inheritdoc}
      */
-    protected function performRequest()
+    protected function performRequest(): string
     {
         $raw = null;
         if ($this->isConnected()) {
@@ -119,7 +119,6 @@ class WhoisServer extends ProviderAbstract
             \stream_select($r, $w, $e, $this->getStreamTimeout());
 
             $raw = \stream_get_contents($fp);
-
             \fclose($fp);
         }
 

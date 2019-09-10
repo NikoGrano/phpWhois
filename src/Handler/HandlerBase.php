@@ -135,21 +135,24 @@ class HandlerBase
      * @param Query       $query  Query for whois server
      * @param string|null $server Whois server address
      */
-    public function __construct(Query $query, $server = null)
+    public function __construct(Query $query, ?string $server)
     {
         $this->setQuery($query);
 
         // Default provider is WhoisServer
-        $provider = new $this->providerClass($query);
+        $provider = new $this->providerClass($query, $server ?? 'whois.iana.org');
+
         if (!($provider instanceof ProviderAbstract)) {
             throw new \InvalidArgumentException('Provider class must extend phpWhois\Provider\ProviderAbstract');
         }
-        $this->setProvider($provider);
 
-        if (null === $server) {
-            $server = $this->getServer();
-        }
-        $this->setServer($server);
+        $this->setProvider($provider);
+        null === $server ?: $this->setServer($server);
+    }
+
+    protected function mutateKeyValues(array $keyValues): array
+    {
+        return $keyValues;
     }
 
     /**
@@ -414,7 +417,7 @@ class HandlerBase
         }
 
         $parts = $this->splitRow($row);
-        if (2 === \count($parts)) {
+        if (\is_countable($parts) && 2 === \count($parts)) {
             [$key, $value] = $parts;
         } else {
             return false;
@@ -512,6 +515,7 @@ class HandlerBase
             throw new \InvalidArgumentException('Handler doesn\'t have query or provider set');
         }
 
+        null === $this->server ?: $this->getProvider()->setServer($this->getServer());
         // Get raw response from provider
         $raw = $this->getProvider()->lookup();
         $this->setRaw($raw);
@@ -521,7 +525,7 @@ class HandlerBase
         $response->setRaw($raw);
 
         $parsed = $this->parse();
-
+        $parsed['keyValue'] = $this->mutateKeyValues($parsed['keyValue']);
         $response->setParsed($parsed);
 
         return $response;

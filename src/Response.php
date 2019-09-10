@@ -54,7 +54,7 @@ class Response
      *
      * @return $this
      */
-    public function setRaw($raw = null)
+    public function setRaw($raw = null): self
     {
         $this->raw = $raw;
 
@@ -66,7 +66,7 @@ class Response
      *
      * @return string|null
      */
-    public function getRaw()
+    public function getRaw(): ?string
     {
         return $this->raw;
     }
@@ -78,7 +78,7 @@ class Response
      *
      * @return $this
      */
-    public function setQuery(Query $query = null)
+    public function setQuery(Query $query = null): self
     {
         $this->query = $query;
 
@@ -90,7 +90,7 @@ class Response
      *
      * @return Query|null
      */
-    public function getQuery()
+    public function getQuery(): ?Query
     {
         return $this->query;
     }
@@ -102,7 +102,7 @@ class Response
      *
      * @return $this
      */
-    public function setParsed(array $parsed = [])
+    public function setParsed(array $parsed = []): self
     {
         $this->parsed = $parsed;
 
@@ -114,7 +114,7 @@ class Response
      *
      * @return array
      */
-    public function getParsed()
+    public function getParsed(): array
     {
         return $this->parsed;
     }
@@ -127,7 +127,7 @@ class Response
      *
      * @return string|null
      */
-    public function getByKey($key)
+    public function getByKey($key): ?string
     {
         $parsed = $this->getParsed();
 
@@ -138,7 +138,7 @@ class Response
         return null;
     }
 
-    public function getData()
+    public function getData(): array
     {
         $result = [
             'query' => [
