@@ -139,7 +139,6 @@ class Whois
      * @return ImmutableResponse Response from the whois server
      *
      * @throws \InvalidArgumentException if address is empty
-     * @throws \Exception
      */
     public function lookup(?string $address = null): ImmutableResponse
     {
