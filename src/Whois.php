@@ -9,7 +9,7 @@ declare(strict_types=1);
  * This source file is released under GNU General Public License v2.
  *
  * @copyright 1999-2005 easyDNS Technologies Inc. & Mark Jeftovic
- * @copyright xxxx-xxxx Maintained by David Saez
+ * @copyright 2005-2014 David Saez
  * @copyright 2014-2019 Dmitry Lukashin
  * @copyright 2019-2020 Niko Granö (https://granö.fi)
  *
@@ -54,7 +54,7 @@ class Whois
      *
      * @return $this
      */
-    protected function setQuery(Query $query)
+    protected function setQuery(Query $query): self
     {
         $this->query = $query;
 
@@ -66,7 +66,7 @@ class Whois
      *
      * @return Query
      */
-    public function getQuery()
+    public function getQuery(): Query
     {
         return $this->query;
     }
@@ -80,7 +80,7 @@ class Whois
      *
      * @throws \InvalidArgumentException When address is not recognized
      */
-    public function setAddress($address)
+    public function setAddress($address): self
     {
         $this->getQuery()->setAddress($address);
 
@@ -96,7 +96,7 @@ class Whois
      *
      * @throws \InvalidArgumentException
      */
-    public function setHandler($handler)
+    public function setHandler($handler): self
     {
         if (null === $handler) {
             return $this;
@@ -122,7 +122,7 @@ class Whois
      *
      * @return HandlerBase|null
      */
-    protected function getHandler()
+    protected function getHandler(): ?HandlerBase
     {
         return $this->handler;
     }
@@ -140,7 +140,7 @@ class Whois
      *
      * @throws \InvalidArgumentException if address is empty
      */
-    public function lookup($address = null)
+    public function lookup($address = null): Response
     {
         if (null !== $address) {
             $this->setAddress($address);
@@ -158,10 +158,7 @@ class Whois
 
         // If handler isn't set or custom handler doesn't have server address defined - obtain server address from IANA
         if (!($this->getHandler() instanceof HandlerBase) || empty($this->getHandler()->getServer())) {
-            $ianaHandler = new HandlerBase($this->getQuery(), 'whois.iana.org');
-            $responseIana = $ianaHandler->lookup();
-
-            $serverAddress = $responseIana->getByKey('whois');
+            $serverAddress = (new HandlerBase($this->getQuery(), 'whois.iana.org'))->lookup()->getByKey('whois');
 
             if (empty($serverAddress)) {
                 throw new \InvalidArgumentException('Cannot find whois server. Consider creating custom handler with predefined server address');
@@ -174,8 +171,6 @@ class Whois
             $this->getHandler()->setServer($serverAddress);
         }
 
-        $response = $this->getHandler()->lookup();
-
-        return $response;
+        return $this->getHandler()->lookup();
     }
 }
