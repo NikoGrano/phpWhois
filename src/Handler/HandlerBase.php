@@ -151,7 +151,7 @@ class HandlerBase
         }
         $this->setProvider($provider);
 
-        if (is_null($server)) {
+        if ($server === null) {
             $server = $this->getServer();
         }
         $this->setServer($server);
@@ -164,7 +164,7 @@ class HandlerBase
      *
      * @return $this
      */
-    protected function setQuery(Query $query)
+    protected function setQuery(Query $query): self
     {
         $this->query = $query;
 
@@ -176,7 +176,7 @@ class HandlerBase
      *
      * @return Query
      */
-    public function getQuery()
+    public function getQuery(): Query
     {
         return $this->query;
     }
@@ -188,7 +188,7 @@ class HandlerBase
      *
      * @return $this
      */
-    public function setServer($server)
+    public function setServer($server): self
     {
         $this->server = $server;
         $this->getProvider()->setServer($server);
@@ -201,7 +201,7 @@ class HandlerBase
      *
      * @return string|null
      */
-    public function getServer()
+    public function getServer(): ?string
     {
         return $this->server;
     }
@@ -213,7 +213,7 @@ class HandlerBase
      *
      * @return $this
      */
-    protected function setProvider(ProviderAbstract $provider)
+    protected function setProvider(ProviderAbstract $provider): self
     {
         $this->provider = $provider;
 
@@ -225,7 +225,7 @@ class HandlerBase
      *
      * @return ProviderAbstract
      */
-    public function getProvider()
+    public function getProvider(): ProviderAbstract
     {
         return $this->provider;
     }
@@ -237,7 +237,7 @@ class HandlerBase
      *
      * @return $this
      */
-    public function setRaw($raw)
+    public function setRaw($raw): self
     {
         $this->raw = $raw;
 
@@ -249,7 +249,7 @@ class HandlerBase
      *
      * @return string
      */
-    public function getRaw()
+    public function getRaw(): string
     {
         return $this->raw;
     }
@@ -261,7 +261,7 @@ class HandlerBase
      *
      * @return $this
      */
-    protected function setRows(array $rows)
+    protected function setRows(array $rows): self
     {
         $this->rows = $rows;
 
@@ -273,7 +273,7 @@ class HandlerBase
      *
      * @return array
      */
-    public function getRows()
+    public function getRows(): array
     {
         return $this->rows;
     }
@@ -285,7 +285,7 @@ class HandlerBase
      *
      * @return $this
      */
-    protected function setParsed(array $parsed)
+    protected function setParsed(array $parsed): self
     {
         $this->parsed = $parsed;
 
@@ -297,7 +297,7 @@ class HandlerBase
      *
      * @return array
      */
-    public function getParsed()
+    public function getParsed(): array
     {
         return $this->parsed;
     }
@@ -307,10 +307,9 @@ class HandlerBase
      *
      * @return bool
      */
-    public function hasData()
+    public function hasData(): bool
     {
-        return $this->getQuery()->hasData()
-                && ($this->getProvider() instanceof ProviderAbstract);
+        return $this->getQuery()->hasData() && ($this->getProvider() instanceof ProviderAbstract);
     }
 
     /**
@@ -320,15 +319,14 @@ class HandlerBase
      *
      * @return string[]
      */
-    public function splitRows($raw = null)
+    public function splitRows($raw = null): array
     {
-        if (is_null($raw)) {
+        if (null === $raw) {
             $raw = $this->getRaw();
         }
 
         // Line ending could be \r\n, \r, \n
-        $rows = preg_split('/(\r\n|[\r\n])/', $raw);
-        return $rows;
+        return preg_split('/(\r\n|[\r\n])/', $raw);
     }
 
     /**
@@ -364,7 +362,7 @@ class HandlerBase
         $parts = [];
         foreach ($splitBy as $separator) {
             $parts = preg_split($separator, $row, 2);
-            if (count($parts) == 2) {
+            if (count($parts) === 2) {
                 $parts[1] = trim($parts[1]);
                 // If string was split by two parts - return immediately
                 // Otherwise try another patterns
@@ -385,7 +383,7 @@ class HandlerBase
     protected function parseDate($date)
     {
         $result = false;
-        if ($this->dateFormat == null) {
+        if ($this->dateFormat === null) {
             $result = strtotime($date);
         } elseif (count($this->dateFormat)) {
             foreach ($this->dateFormat as $format) {
@@ -419,9 +417,8 @@ class HandlerBase
         }
 
         $parts = $this->splitRow($row);
-        if (count($parts) == 2) {
-            $key = $parts[0];
-            $value = $parts[1];
+        if (count($parts) === 2) {
+            [$key, $value] = $parts;
         } else {
             return false;
         }
@@ -443,22 +440,22 @@ class HandlerBase
      *
      * @return string[]
      */
-    protected function extractDates(array $rows)
+    protected function extractDates(array $rows): array
     {
         $dates = ['expires' => false, 'registered' => false, 'updated' => false];
 
         foreach ($rows as $row) {
             // Registration date
             if (!$dates['registered']) {
-                $dates['registered'] = ($this->extractDate($row, $this->patternRegistered)) ?: $dates['registered'];
+                $dates['registered'] = $this->extractDate($row, $this->patternRegistered) ?: $dates['registered'];
             }
             // Expiration date
             if (!$dates['expires']) {
-                $dates['expires'] = ($this->extractDate($row, $this->patternExpires)) ?: $dates['expires'];
+                $dates['expires'] = $this->extractDate($row, $this->patternExpires) ?: $dates['expires'];
             }
             // Updated date
             if (!$dates['updated']) {
-                $dates['updated'] = ($this->extractDate($row, $this->patternUpdated, ['/>>>/i'])) ?: $dates['updated'];
+                $dates['updated'] = $this->extractDate($row, $this->patternUpdated, ['/>>>/i']) ?: $dates['updated'];
             }
         }
         return $dates;
@@ -471,12 +468,12 @@ class HandlerBase
      * @param string[] $rows
      * @return array
      */
-    protected function extractKeyValue(array $rows)
+    protected function extractKeyValue(array $rows): array
     {
         $keyValue = [];
         foreach ($rows as $row) {
             $parts = $this->splitRow($row);
-            if (count($parts) == 2) {
+            if ($parts !== false && count($parts) === 2) {
                 $keyValue[$parts[0]] = $parts[1];
             }
         }
@@ -488,7 +485,7 @@ class HandlerBase
      *
      * @return array
      */
-    protected function parse()
+    protected function parse(): array
     {
         $rows = $this->splitRows();
         $this->setRows($rows);
@@ -509,7 +506,7 @@ class HandlerBase
      *
      * @throws \InvalidArgumentException
      */
-    public function lookup()
+    public function lookup(): Response
     {
         if (!$this->hasData()) {
             throw new \InvalidArgumentException('Handler doesn\'t have query or provider set');
