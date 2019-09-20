@@ -325,7 +325,7 @@ function generic_parser_b($rawdata, $items = [], $dateformat = 'mdy', $hasreg = 
         ];
     }
 
-    $r = '';
+    $r = array(); // fix for issue with PHP7 as discussed on in https://stackoverflow.com/questions/1873970/cannot-use-string-offset-as-an-array-in-php 
     $disok = true;
 
     while (list($key, $val) = \each($rawdata)) {
