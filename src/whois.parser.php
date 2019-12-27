@@ -325,7 +325,7 @@ function generic_parser_b($rawdata, $items = [], $dateformat = 'mdy', $hasreg = 
         ];
     }
 
-    $r = '';
+    $r = [];
     $disok = true;
 
     while (list($key, $val) = \each($rawdata)) {
